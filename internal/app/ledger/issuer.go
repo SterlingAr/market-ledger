@@ -3,7 +3,7 @@ package ledger
 type Issuer struct {
 	tableName struct{} `pg:"ledger.issuers"`
 	ID        uint64
-	Name      string `pg:",notnull,unique"`
+	Name      string     `pg:",notnull,unique"`
 	Invoices  []*Invoice `pg:"rel:has-many"`
 }
 

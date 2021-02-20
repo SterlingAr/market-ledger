@@ -6,7 +6,7 @@ import (
 	"github.com/google/logger"
 )
 
-var db * pg.DB
+var db *pg.DB
 
 func cleanDB() {
 	err := deleteTables()
@@ -23,6 +23,8 @@ func createTables() error {
 	models := []interface{}{
 		(*Issuer)(nil),
 		(*Invoice)(nil),
+		(*Investor)(nil),
+		(*Bid)(nil),
 	}
 	tx, err := db.Begin()
 	if err != nil {
@@ -45,6 +47,8 @@ func deleteTables() error {
 	models := []interface{}{
 		(*Issuer)(nil),
 		(*Invoice)(nil),
+		(*Investor)(nil),
+		(*Bid)(nil),
 	}
 	tx, err := db.Begin()
 
@@ -72,4 +76,3 @@ func txCloseLog(tx *pg.Tx) {
 		logger.Error(err)
 	}
 }
-
