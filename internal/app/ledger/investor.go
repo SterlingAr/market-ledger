@@ -1,5 +1,7 @@
 package ledger
 
+import "errors"
+
 type Investor struct {
 	tableName struct{} `pg:"ledger.investor"`
 	ID        uint64
@@ -9,19 +11,25 @@ type Investor struct {
 }
 
 type Bid struct {
-	tableName       struct{}  `pg:"ledger.bids"`
-	ID              uint64
-	Position        int 	  `pg:",pk"`
-	InvestmentValue int
-	ExpectedProfit  int
-	InvestorID      uint64    `pg:",pk"`
-	Investor        *Investor `pg:"rel:has-one"`
-	InvoiceID       uint64    `pg:",pk"`
-	Invoice         *Invoice  `pg:"rel:has-one"`
+	tableName struct{} `pg:"ledger.bids"`
+	//ID              uint64
+	Position         int `pg:",pk"`
+	InvestmentValue  int
+	ProfitPercentage float64
+	InvestorID       uint64    `pg:",pk"`
+	Investor         *Investor `pg:"rel:has-one"`
+	InvoiceID        uint64    `pg:",pk"`
+	Invoice          *Invoice  `pg:"rel:has-one"`
 }
 
 func (i *Investor) newBid(invoice *Invoice, bid *Bid) error {
-	// matchingAlgorithm test
+
+	err := matchingAlgorithm(invoice, i, bid)
+
+	if err != nil {
+		return err
+	}
+
 	tx, err := db.Begin()
 
 	if err != nil {
@@ -47,6 +55,19 @@ func (i *Investor) newBid(invoice *Invoice, bid *Bid) error {
 	return tx.Commit()
 }
 
+func matchingAlgorithm(invoice *Invoice, i *Investor, bid *Bid) error {
+	if bid.InvestmentValue > i.Balance {
+		return errors.New("insufficient balance")
+	}
+
+	invoiceDiscount := calcDiscount(float64(invoice.FaceValue), float64(invoice.NeededValue))
+
+	if bid.ProfitPercentage > invoiceDiscount {
+		return errors.New("bid discount is bigger than invoice discount")
+	}
+	return nil
+}
+
 func getInvestor(name string) (*Investor, error) {
 	var investor Investor
 
@@ -69,8 +90,6 @@ func getInvestorBids(investor * Investor) ([]*Bid, error) {
 		Relation("Invoice").
 		Select()
 
-
-
 	return bids, err
 }
 
@@ -92,4 +111,23 @@ func newInvestor(investor *Investor) error {
 	}
 
 	return tx.Commit()
+}
+
+
+func calcDiscount(i float64, i2 float64) float64 {
+	var x, y, z, p float64
+
+	if i > i2 {
+		y = i2
+		x = i
+	} else {
+		y = i
+		x = i2
+	}
+
+	z = x - y
+
+	p = (z/x) * 100
+
+	return p
 }

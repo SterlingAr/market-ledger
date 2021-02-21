@@ -34,7 +34,7 @@ var investors = []*Investor{
 	},
 }
 
-func TestNewBid(t *testing.T) {
+func TestSuccessfulNewBid(t *testing.T) {
 	cleanDB()
 	issuer := &Issuer{
 		Name: "party-A",
@@ -69,7 +69,7 @@ func TestNewBid(t *testing.T) {
 
 	bid := &Bid{
 		InvestmentValue : 450,
-		ExpectedProfit : 500,
+		ProfitPercentage : 10,
 	}
 
 	err = investor.newBid(invoice, bid)
@@ -100,25 +100,149 @@ func TestNewBid(t *testing.T) {
 		t.Errorf("expected investment value %v, instead got %v", bid.InvestmentValue, bids[0].InvestmentValue)
 	}
 
-	if bids[0].ExpectedProfit != bid.ExpectedProfit {
-		t.Errorf("expected profit value %v, instead got %v", bid.ExpectedProfit, bids[0].ExpectedProfit)
+	if bids[0].ProfitPercentage != bid.ProfitPercentage {
+		t.Errorf("expected profit value %v, instead got %v", bid.ProfitPercentage, bids[0].ProfitPercentage)
 	}
 
 	if bids[0].Position != 1 {
 		t.Errorf("expected position %v, instead got %v", 1, bids[0].Position)
 	}
 
+
+	inv, err := getInvestor(investor.Name)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if inv.Balance != 550 {
+		t.Errorf("expected balance %v, actual balance %v", 550, inv.Balance)
+	}
 }
 
-
 func TestInsufficientBalance(t *testing.T) {
+	cleanDB()
+	issuer := &Issuer{
+		Name: "party-A",
+	}
 
+	err := newIssuer(issuer)
+	if err != nil {
+		t.Error(err)
+	}
+
+	invoice := &Invoice{
+		FaceValue: 1000,
+		NeededValue: 900,
+	}
+
+	err = sellInvoice(issuer, invoice)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	investor := &Investor{
+		Name: "investor-1",
+		Balance: 1000,
+	}
+
+	err = newInvestor(investor)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	bid := &Bid{
+		InvestmentValue : 5450,
+		ProfitPercentage : 5,
+	}
+
+	err = investor.newBid(invoice, bid)
+
+	expectedErrorString := "insufficient balance"
+
+	if err == nil {
+		t.Error("expected error, got none")
+	} else {
+		if err.Error() != expectedErrorString {
+			t.Errorf("expected error string: %v", expectedErrorString)
+		}
+	}
 }
 
 func TestMismatchedDiscount(t *testing.T) {
-	
+	cleanDB()
+	issuer := &Issuer{
+		Name: "party-A",
+	}
+
+	err := newIssuer(issuer)
+	if err != nil {
+		t.Error(err)
+	}
+
+	invoice := &Invoice{
+		FaceValue: 1000,
+		NeededValue: 900,
+	}
+
+	err = sellInvoice(issuer, invoice)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	investor := &Investor{
+		Name: "investor-1",
+		Balance: 1000,
+	}
+
+	err = newInvestor(investor)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	bid := &Bid{
+		InvestmentValue : 450,
+		ProfitPercentage : 15,
+	}
+
+	err = investor.newBid(invoice, bid)
+
+	expectedErrorString := "bid discount is bigger than invoice discount"
+	if err == nil {
+		t.Error("expected error, got none")
+	} else {
+		if err.Error() != expectedErrorString {
+			t.Errorf("expected error string: %v", expectedErrorString)
+		}
+	}
 }
 
 func TestDiscountCalculator(t *testing.T) {
-	
+	discount := calcDiscount(900, 1000)
+
+	if discount != 10 {
+		t.Errorf("expected discount value %v, actual discount value %v", 10, discount)
+	}
+
+	discount = calcDiscount(1000, 900)
+
+	if discount != 10 {
+		t.Errorf("expected discount value %v, actual discount value %v", 10, discount)
+	}
+
+	discount = calcDiscount(889, 1000)
+
+	if discount != 11.1 {
+		t.Errorf("expected discount value %v, actual discount value %v", 10, discount)
+	}
+
+	discount = calcDiscount(1000, 1000)
+
+	if discount != 0 {
+		t.Errorf("expected discount value %v, actual discount value %v", 0, discount)
+	}
 }

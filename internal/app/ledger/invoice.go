@@ -7,6 +7,19 @@ type Invoice struct {
 	NeededValue int
 	IssuerID  uint64
 	Issuer    *Issuer `pg:"rel:has-one"`
-	Financed  bool
 	Bids  []*Bid `pg:"rel:has-many"`
+}
+
+func getInvoiceBids(invoice * Invoice) ([]*Bid, error) {
+	var (
+		bids []*Bid
+	)
+
+	err := db.Model(&bids).
+		Where("invoice_id = ?", invoice.ID).
+		Relation("Investor").
+		Relation("Invoice").
+		Select()
+
+	return bids, err
 }
