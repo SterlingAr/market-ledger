@@ -171,7 +171,7 @@ func TestInsufficientBalance(t *testing.T) {
 	}
 }
 
-func TestMismatchedDiscount(t *testing.T) {
+func TestExcessProfit(t *testing.T) {
 	cleanDB()
 	issuer := &Issuer{
 		Name: "party-A",
