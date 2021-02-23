@@ -1,9 +1,9 @@
 # Mac OS X files
 .DS_Store
 
-deployments/databases
+databases
 
-deployments/.env
+.env
 
 .idea
 # Binaries for programs and plugins

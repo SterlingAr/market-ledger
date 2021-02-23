@@ -26,7 +26,7 @@ func TestNewSellOrder(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = newSellOrder(invoice)
+	_, err = newSellOrder(invoice)
 
 	if err != nil {
 		t.Error(err)
@@ -40,8 +40,4 @@ func TestNewSellOrder(t *testing.T) {
 	if so.Financed {
 		t.Error("sell order should not be financed")
 	}
-}
-
-func TestPlaceMultipleBids(t *testing.T) {
-	
 }

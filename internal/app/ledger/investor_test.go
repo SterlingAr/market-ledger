@@ -108,7 +108,6 @@ func TestSuccessfulNewBid(t *testing.T) {
 		t.Errorf("expected position %v, instead got %v", 1, bids[0].Position)
 	}
 
-
 	inv, err := getInvestor(investor.Name)
 
 	if err != nil {

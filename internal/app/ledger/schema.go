@@ -23,6 +23,7 @@ func createTables() error {
 	models := []interface{}{
 		(*Issuer)(nil),
 		(*Invoice)(nil),
+		(*SellOrder)(nil),
 		(*Investor)(nil),
 		(*Bid)(nil),
 	}
@@ -47,6 +48,7 @@ func deleteTables() error {
 	models := []interface{}{
 		(*Issuer)(nil),
 		(*Invoice)(nil),
+		(*SellOrder)(nil),
 		(*Investor)(nil),
 		(*Bid)(nil),
 	}

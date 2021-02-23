@@ -23,8 +23,11 @@ type Bid struct {
 }
 
 func (i *Investor) newBid(invoice *Invoice, bid *Bid) error {
+	if bid.InvestmentValue > i.Balance {
+		return errors.New("insufficient balance")
+	}
 
-	err := matchingAlgorithm(invoice, i, bid)
+	_, err := getSellOrder(invoice.ID)
 
 	if err != nil {
 		return err
@@ -55,19 +58,6 @@ func (i *Investor) newBid(invoice *Invoice, bid *Bid) error {
 	return tx.Commit()
 }
 
-func matchingAlgorithm(invoice *Invoice, i *Investor, bid *Bid) error {
-	if bid.InvestmentValue > i.Balance {
-		return errors.New("insufficient balance")
-	}
-
-	invoiceDiscount := calcDiscount(float64(invoice.FaceValue), float64(invoice.NeededValue))
-
-	if bid.ProfitPercentage > invoiceDiscount {
-		return errors.New("bid discount is bigger than invoice discount")
-	}
-	return nil
-}
-
 func getInvestor(name string) (*Investor, error) {
 	var investor Investor
 
@@ -80,7 +70,6 @@ func getInvestor(name string) (*Investor, error) {
 
 func getInvestorBids(investor * Investor) ([]*Bid, error) {
 	var (
-
 		bids []*Bid
 	)
 
