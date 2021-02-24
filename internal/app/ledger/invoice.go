@@ -1,16 +1,16 @@
 package ledger
 
 type Invoice struct {
-	tableName struct{} `pg:"ledger.invoices"`
-	ID        uint64
-	FaceValue int
+	tableName   struct{} `pg:"ledger.invoices"`
+	ID          uint64
+	FaceValue   int
 	NeededValue int
-	IssuerID  uint64
-	Issuer    *Issuer `pg:"rel:has-one"`
-	Bids  []*Bid `pg:"rel:has-many"`
+	IssuerID    uint64
+	Issuer      *Issuer `pg:"rel:has-one"`
+	Bids        []*Bid  `pg:"rel:has-many"`
 }
 
-func getInvoiceBids(invoice * Invoice) ([]*Bid, error) {
+func getInvoiceBids(invoice *Invoice) ([]*Bid, error) {
 	var (
 		bids []*Bid
 	)

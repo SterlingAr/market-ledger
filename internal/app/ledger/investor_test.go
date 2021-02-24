@@ -5,7 +5,7 @@ import "testing"
 func TestNewInvestor(t *testing.T) {
 	cleanDB()
 	investor := &Investor{
-		Name: "investor-1",
+		Name:    "investor-1",
 		Balance: 1000,
 	}
 
@@ -27,13 +27,6 @@ func TestNewInvestor(t *testing.T) {
 
 }
 
-var investors = []*Investor{
-	&Investor{
-		Balance:   5000,
-		Name:      "investor-1",
-	},
-}
-
 func TestSuccessfulNewBid(t *testing.T) {
 	cleanDB()
 	issuer := &Issuer{
@@ -46,7 +39,7 @@ func TestSuccessfulNewBid(t *testing.T) {
 	}
 
 	invoice := &Invoice{
-		FaceValue: 1000,
+		FaceValue:   1000,
 		NeededValue: 900,
 	}
 
@@ -57,7 +50,7 @@ func TestSuccessfulNewBid(t *testing.T) {
 	}
 
 	investor := &Investor{
-		Name: "investor-1",
+		Name:    "investor-1",
 		Balance: 1000,
 	}
 
@@ -68,8 +61,8 @@ func TestSuccessfulNewBid(t *testing.T) {
 	}
 
 	bid := &Bid{
-		InvestmentValue : 450,
-		ProfitPercentage : 10,
+		InvestmentValue:  450,
+		ProfitPercentage: 10,
 	}
 
 	err = investor.newBid(invoice, bid)
@@ -131,7 +124,7 @@ func TestInsufficientBalance(t *testing.T) {
 	}
 
 	invoice := &Invoice{
-		FaceValue: 1000,
+		FaceValue:   1000,
 		NeededValue: 900,
 	}
 
@@ -142,7 +135,7 @@ func TestInsufficientBalance(t *testing.T) {
 	}
 
 	investor := &Investor{
-		Name: "investor-1",
+		Name:    "investor-1",
 		Balance: 1000,
 	}
 
@@ -153,8 +146,8 @@ func TestInsufficientBalance(t *testing.T) {
 	}
 
 	bid := &Bid{
-		InvestmentValue : 5450,
-		ProfitPercentage : 5,
+		InvestmentValue:  5450,
+		ProfitPercentage: 5,
 	}
 
 	err = investor.newBid(invoice, bid)
@@ -182,7 +175,7 @@ func TestExcessProfit(t *testing.T) {
 	}
 
 	invoice := &Invoice{
-		FaceValue: 1000,
+		FaceValue:   1000,
 		NeededValue: 900,
 	}
 
@@ -193,7 +186,7 @@ func TestExcessProfit(t *testing.T) {
 	}
 
 	investor := &Investor{
-		Name: "investor-1",
+		Name:    "investor-1",
 		Balance: 1000,
 	}
 
@@ -204,8 +197,8 @@ func TestExcessProfit(t *testing.T) {
 	}
 
 	bid := &Bid{
-		InvestmentValue : 450,
-		ProfitPercentage : 15,
+		InvestmentValue:  450,
+		ProfitPercentage: 15,
 	}
 
 	err = investor.newBid(invoice, bid)

@@ -7,7 +7,7 @@ type Investor struct {
 	ID        uint64
 	Balance   int
 	Name      string
-	Bids  []*Bid `pg:"rel:has-many"`
+	Bids      []*Bid `pg:"rel:has-many"`
 }
 
 type Bid struct {
@@ -20,6 +20,7 @@ type Bid struct {
 	Investor         *Investor `pg:"rel:has-one"`
 	InvoiceID        uint64    `pg:",pk"`
 	Invoice          *Invoice  `pg:"rel:has-one"`
+	Status           string
 }
 
 func (i *Investor) newBid(invoice *Invoice, bid *Bid) error {
@@ -68,7 +69,7 @@ func getInvestor(name string) (*Investor, error) {
 	return &investor, err
 }
 
-func getInvestorBids(investor * Investor) ([]*Bid, error) {
+func getInvestorBids(investor *Investor) ([]*Bid, error) {
 	var (
 		bids []*Bid
 	)
@@ -102,7 +103,6 @@ func newInvestor(investor *Investor) error {
 	return tx.Commit()
 }
 
-
 func calcDiscount(i float64, i2 float64) float64 {
 	var x, y, z, p float64
 
@@ -116,7 +116,7 @@ func calcDiscount(i float64, i2 float64) float64 {
 
 	z = x - y
 
-	p = (z/x) * 100
+	p = (z / x) * 100
 
 	return p
 }
