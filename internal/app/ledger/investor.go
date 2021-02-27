@@ -13,14 +13,20 @@ type Investor struct {
 type Bid struct {
 	tableName struct{} `pg:"ledger.bids"`
 	//ID              uint64
-	Position         int `pg:",pk"`
-	InvestmentValue  float64
-	ProfitPercentage float64
-	InvestorID       uint64    `pg:",pk"`
-	Investor         *Investor `pg:"rel:has-one"`
-	InvoiceID        uint64    `pg:",pk"`
-	Invoice          *Invoice  `pg:"rel:has-one"`
-	Status           string
+	Position        int `pg:",pk"`
+	InvestmentValue float64
+	ReservedBalance float64
+	// I am not sure what bid discount is
+	// as a bidder I bid 500 euros
+	// I have a bid discount of 10%
+	// that means I won't be paying 500 euros? but only 450
+	// if the bid goes through, my balance is reduced by 450 euros
+	Discount        float64
+	InvestorID      uint64    `pg:",pk"`
+	Investor        *Investor `pg:"rel:has-one"`
+	InvoiceID       uint64    `pg:",pk"`
+	Invoice         *Invoice  `pg:"rel:has-one"`
+	Status          string
 }
 
 func (i *Investor) newBid(invoice *Invoice, bid *Bid) error {
@@ -28,14 +34,9 @@ func (i *Investor) newBid(invoice *Invoice, bid *Bid) error {
 		return errors.New("insufficient balance")
 	}
 
-	// I am not sure what bid discount is
-	// as a bidder I bid 500 euros
-	// I have a bid discount of 10%
-	// that means I won't be paying 500 euros? but only 450
-	// if the bid goes through, my balance is reduced by 450 euros
 	invoiceDiscount := calcDiscount(invoice.FaceValue, invoice.NeededValue)
 
-	if bid.ProfitPercentage > invoiceDiscount {
+	if bid.Discount > invoiceDiscount {
 		err := rejectBid(bid)
 		if err != nil {
 			return err

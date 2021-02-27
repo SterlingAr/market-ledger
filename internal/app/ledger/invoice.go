@@ -3,7 +3,7 @@ package ledger
 type Invoice struct {
 	tableName   struct{} `pg:"ledger.invoices"`
 	ID          uint64
-	Name        string
+	Name        string `pg:",notnull,unique"`
 	FaceValue   float64
 	NeededValue float64
 	IssuerID    uint64

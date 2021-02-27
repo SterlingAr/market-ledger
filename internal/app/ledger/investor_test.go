@@ -62,7 +62,7 @@ func TestSuccessfulNewBid(t *testing.T) {
 
 	bid := &Bid{
 		InvestmentValue:  450,
-		ProfitPercentage: 10,
+		Discount: 10,
 	}
 
 	err = investor.newBid(invoice, bid)
@@ -93,8 +93,8 @@ func TestSuccessfulNewBid(t *testing.T) {
 		t.Errorf("expected investment value %v, instead got %v", bid.InvestmentValue, bids[0].InvestmentValue)
 	}
 
-	if bids[0].ProfitPercentage != bid.ProfitPercentage {
-		t.Errorf("expected profit value %v, instead got %v", bid.ProfitPercentage, bids[0].ProfitPercentage)
+	if bids[0].Discount != bid.Discount {
+		t.Errorf("expected profit value %v, instead got %v", bid.Discount, bids[0].Discount)
 	}
 
 	if bids[0].Position != 1 {
@@ -147,7 +147,7 @@ func TestInsufficientBalance(t *testing.T) {
 
 	bid := &Bid{
 		InvestmentValue:  5450,
-		ProfitPercentage: 5,
+		Discount: 5,
 	}
 
 	err = investor.newBid(invoice, bid)
@@ -198,7 +198,7 @@ func TestExcessProfit(t *testing.T) {
 
 	bid := &Bid{
 		InvestmentValue:  450,
-		ProfitPercentage: 15,
+		Discount: 15,
 	}
 
 	err = investor.newBid(invoice, bid)

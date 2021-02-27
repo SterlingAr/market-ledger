@@ -27,42 +27,54 @@ func TestGetLedger(t *testing.T) {
 	ledger := getLedger()
 
 	// investor check
-	//if ledger.Entries[0].InvestorName != "investor-1" {
-	//	t.Errorf("expected investor name %v, actual %v", "investor-1", ledger.Entries[0].InvestorName)
-	//}
-	//
-	//if ledger.Entries[1].InvestorName != "investor-2" {
-	//	t.Errorf("expected investor name %v, actual %v", "investor-2", ledger.Entries[1].InvestorName)
-	//}
-	//
-	//if ledger.Entries[2].InvestorName != "investor-4" {
-	//	t.Errorf("expected investor name %v, actual %v", "investor-4", ledger.Entries[2].InvestorName)
-	//}
-	//
-	//// invoice check
-	//if ledger.Entries[0].InvoiceName != "invoice-1" {
-	//	t.Errorf("expected invoice name %v, actual %v", "invoice-1", ledger.Entries[0].InvoiceName)
-	//}
-	//
-	//if ledger.Entries[1].InvoiceName != "invoice-1" {
-	//	t.Errorf("expected invoice name %v, actual %v", "invoice-1", ledger.Entries[1].InvoiceName)
-	//}
-	//
-	//if ledger.Entries[2].InvoiceName != "invoice-1" {
-	//	t.Errorf("expected invoice name %v, actual %v", "invoice-1", ledger.Entries[2].InvoiceName)
-	//}
+	if ledger.Entries[0].InvestorName != "investor-1" {
+		t.Errorf("expected investor name %v, actual %v", "investor-1", ledger.Entries[0].InvestorName)
+	}
+
+	if ledger.Entries[1].InvestorName != "investor-2" {
+		t.Errorf("expected investor name %v, actual %v", "investor-2", ledger.Entries[1].InvestorName)
+	}
+
+	if ledger.Entries[2].InvestorName != "investor-4" {
+		t.Errorf("expected investor name %v, actual %v", "investor-4", ledger.Entries[2].InvestorName)
+	}
+
+	// invoice check
+	if ledger.Entries[0].InvoiceName != "invoice-1" {
+		t.Errorf("expected invoice name %v, actual %v", "invoice-1", ledger.Entries[0].InvoiceName)
+	}
+
+	if ledger.Entries[1].InvoiceName != "invoice-1" {
+		t.Errorf("expected invoice name %v, actual %v", "invoice-1", ledger.Entries[1].InvoiceName)
+	}
+
+	if ledger.Entries[2].InvoiceName != "invoice-1" {
+		t.Errorf("expected invoice name %v, actual %v", "invoice-1", ledger.Entries[2].InvoiceName)
+	}
 
 	// reserved value
-	if ledger.Entries[0].InvestedValue != 450 {
-		t.Errorf("expected InvestedValue %v, actual %v", 450, ledger.Entries[0].InvestedValue)
+	if ledger.Entries[0].InvestedBalance != 500 {
+		t.Errorf("expected InvestedValue %v, actual %v", 500, ledger.Entries[0].InvestedBalance)
 	}
 
-	if ledger.Entries[1].InvestedValue != 270 {
-		t.Errorf("expected InvestedValue %v, actual %v", 270, ledger.Entries[1].InvestedValue)
+	if ledger.Entries[1].InvestedBalance != 300 {
+		t.Errorf("expected InvestedValue %v, actual %v", 300, ledger.Entries[1].InvestedBalance)
 	}
 
-	if ledger.Entries[2].InvestedValue != 190 {
-		t.Errorf("expected InvestedValue %v, actual %v", 190, ledger.Entries[2].InvestedValue)
+	if ledger.Entries[2].InvestedBalance != 100 {
+		t.Errorf("expected InvestedValue %v, actual %v", 100, ledger.Entries[2].InvestedBalance)
+	}
+
+	if ledger.Entries[0].ReservedBalance != 450 {
+		t.Errorf("expected InvestedValue %v, actual %v", 450, ledger.Entries[0].ReservedBalance)
+	}
+
+	if ledger.Entries[1].ReservedBalance != 270 {
+		t.Errorf("expected InvestedValue %v, actual %v", 270, ledger.Entries[1].ReservedBalance)
+	}
+
+	if ledger.Entries[2].ReservedBalance != 95 {
+		t.Errorf("expected InvestedValue %v, actual %v", 95, ledger.Entries[2].ReservedBalance)
 	}
 
 	// expected profit
@@ -74,10 +86,9 @@ func TestGetLedger(t *testing.T) {
 		t.Errorf("expected ExpectedProfit %v, actual %v", 30, ledger.Entries[1].ExpectedProfit)
 	}
 
-	if ledger.Entries[2].ExpectedProfit != 10 {
+	if ledger.Entries[2].ExpectedProfit != 5 {
 		t.Errorf("expected ExpectedProfit %v, actual %v", 10, ledger.Entries[2].ExpectedProfit)
 	}
-
 }
 
 func getLedger() Ledger {
@@ -102,8 +113,9 @@ func getLedger() Ledger {
 
 		for _, bid := range bids {
 			entry := LedgerEntry{
-				InvestedValue:  bid.InvestmentValue,
-				ExpectedProfit: calcProfit(bid.InvestmentValue, bid.ProfitPercentage),
+				InvestedBalance:  bid.InvestmentValue,
+				ReservedBalance: bid.ReservedBalance,
+				ExpectedProfit: bid.InvestmentValue - bid.ReservedBalance,
 				InvestorName:   bid.Investor.Name,
 				InvoiceName:    bid.Invoice.Name,
 			}
@@ -114,19 +126,16 @@ func getLedger() Ledger {
 	return ledger
 }
 
-func calcProfit(investedValue float64, profitPercentage float64) float64 {
-	return investedValue * (profitPercentage / 100)
-}
-
 type Ledger struct {
 	Entries []LedgerEntry
 }
 
 type LedgerEntry struct {
-	InvestedValue  float64
-	ExpectedProfit float64
-	InvestorName   string
-	InvoiceName    string
+	InvestorName    string
+	InvoiceName     string
+	InvestedBalance float64
+	ReservedBalance float64
+	ExpectedProfit  float64
 }
 
 func matchingAlgorithm() error {
@@ -160,11 +169,29 @@ soLoop:
 
 		for _, bid := range bids {
 			var surplus float64
+
 			if so.Financed {
 				break soLoop
 			}
 
 			total += bid.InvestmentValue
+
+			reservedBalance := investmentDiscount(bid.InvestmentValue, bid.Discount)
+
+			bid.Investor.Balance -= reservedBalance
+
+			// persist how much party-Y owes investor-X, which should be the real investment value (without the discount)
+			bid.ReservedBalance = reservedBalance
+
+			_, err := tx.Model(bid).Where("position = ?", bid.Position).Update()
+			if err != nil {
+				return err
+			}
+
+			_, err = tx.Model(bid.Investor).WherePK().Update()
+			if err != nil {
+				return err
+			}
 
 			if total >= so.Invoice.NeededValue {
 				if total == so.Invoice.NeededValue {
@@ -174,16 +201,20 @@ soLoop:
 					surplus =  total - so.Invoice.NeededValue
 
 					bid.InvestmentValue -= surplus
-					bid.Investor.Balance += surplus
+
+					reservedBalance = investmentDiscount(bid.InvestmentValue, bid.Discount)
+					bid.ReservedBalance = reservedBalance
+
+					bid.Investor.Balance += investmentDiscount(surplus, bid.Discount)
 
 					_, err := tx.Model(bid).Where("position = ?", bid.Position).Update()
 					if err != nil {
-						logger.Error(err)
+						return err
 					}
 
 					_, err = tx.Model(bid.Investor).WherePK().Update()
 					if err != nil {
-						logger.Error(err)
+						return err
 					}
 				}
 
@@ -198,6 +229,11 @@ soLoop:
 		}
 	}
 	return tx.Commit()
+}
+
+// apply discount to the investment Value
+func investmentDiscount(value float64, discount float64) float64 {
+	return value - (value * (discount/100))
 }
 
 func newSellOrderTestData() error {
@@ -227,6 +263,7 @@ func newSellOrderTestData() error {
 	}
 
 	invoice := &Invoice{
+		Name: "invoice-1",
 		FaceValue:   1000,
 		NeededValue: 900,
 	}
@@ -244,8 +281,8 @@ func newSellOrderTestData() error {
 	}
 
 	err = investors["investor-1"].newBid(invoice, &Bid{
-		InvestmentValue:  450,
-		ProfitPercentage: 10,
+		InvestmentValue:  500,
+		Discount: 10,
 	})
 
 	if err != nil {
@@ -253,8 +290,8 @@ func newSellOrderTestData() error {
 	}
 
 	err = investors["investor-2"].newBid(invoice, &Bid{
-		InvestmentValue:  270,
-		ProfitPercentage: 10,
+		InvestmentValue:  300,
+		Discount: 10,
 	})
 
 	if err != nil {
@@ -262,8 +299,8 @@ func newSellOrderTestData() error {
 	}
 
 	err = investors["investor-3"].newBid(invoice, &Bid{
-		InvestmentValue:  175,
-		ProfitPercentage: 14.29,
+		InvestmentValue:  200,
+		Discount: 14.29,
 	}) // for this instance, its expected for the bid to be rejected
 
 	if err == nil {
@@ -271,9 +308,10 @@ func newSellOrderTestData() error {
 	}
 
 	err = investors["investor-4"].newBid(invoice, &Bid{
-		InvestmentValue:  285,
-		ProfitPercentage: 10,
+		InvestmentValue:  300,
+		Discount: 5,
 	})
+
 	if err != nil {
 		return err
 	}
