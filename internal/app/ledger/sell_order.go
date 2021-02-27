@@ -1,5 +1,7 @@
 package ledger
 
+import "github.com/google/logger"
+
 type SellOrder struct {
 	tableName struct{} `pg:"ledger.sell_orders"`
 	ID        uint64
@@ -51,24 +53,17 @@ func newSellOrder(invoice *Invoice) (*SellOrder, error) {
 	return sellOrder, tx.Commit()
 }
 
-//
-//func matchingAlgorithm(bid *Bid) error {
-//
-//	invoiceDiscount := calcDiscount(float64(bid.Invoice.FaceValue), float64(bid.Invoice.NeededValue))
-//
-//	if bid.ProfitPercentage > invoiceDiscount {
-//		err := rejectBid(bid)
-//		if err != nil {
-//			return err
-//		}
-//		return errors.New("bid discount is bigger than invoice discount")
-//	}
-//
-//	return nil
-//}
+func matchingAlgorithm() error {
+	var (
+		sellOrders []*SellOrder
+	)
 
-// change bid status, return money to investor
-func rejectBid(bid *Bid) error {
+	err := db.Model(&sellOrders).Relation("Invoice").Select()
+
+	if err != nil {
+		return err
+	}
+
 	tx, err := db.Begin()
 
 	if err != nil {
@@ -77,21 +72,81 @@ func rejectBid(bid *Bid) error {
 
 	defer txCloseLog(tx)
 
-	//bid.Investor.Balance += bid.InvestmentValue
+soLoop:
+	for _, so := range sellOrders {
+		bids, err := getInvoiceBids(so.Invoice)
 
-	bid.Status = "rejected"
-	
-	_, err = tx.Model(bid).Update()
+		if err != nil {
+			return err
+		}
 
-	if err != nil {
-		return err
+		var total float64 = 0
+
+		for _, bid := range bids {
+			var surplus float64
+
+			if so.Financed {
+				break soLoop
+			}
+
+			total += bid.InvestmentValue
+
+			reservedBalance := investmentDiscount(bid.InvestmentValue, bid.Discount)
+
+			bid.Investor.Balance -= reservedBalance
+
+			// persist how much party-Y owes investor-X, which should be the real investment value (without the discount)
+			bid.ReservedBalance = reservedBalance
+
+			_, err := tx.Model(bid).Where("position = ?", bid.Position).Update()
+			if err != nil {
+				return err
+			}
+
+			_, err = tx.Model(bid.Investor).WherePK().Update()
+			if err != nil {
+				return err
+			}
+
+			if total >= so.Invoice.NeededValue {
+				if total == so.Invoice.NeededValue {
+
+				} else {
+
+					surplus =  total - so.Invoice.NeededValue
+
+					bid.InvestmentValue -= surplus
+
+					reservedBalance = investmentDiscount(bid.InvestmentValue, bid.Discount)
+					bid.ReservedBalance = reservedBalance
+
+					bid.Investor.Balance += investmentDiscount(surplus, bid.Discount)
+
+					_, err := tx.Model(bid).Where("position = ?", bid.Position).Update()
+					if err != nil {
+						return err
+					}
+
+					_, err = tx.Model(bid.Investor).WherePK().Update()
+					if err != nil {
+						return err
+					}
+				}
+
+				so.Financed = true
+				_, err = tx.Model(so).WherePK().Update()
+				if err != nil {
+					logger.Error(err)
+				}
+
+				break soLoop
+			}
+		}
 	}
-
-	_, err = tx.Model(bid.Investor).Update()
-
-	if err != nil {
-		return err
-	}
-
 	return tx.Commit()
+}
+
+// apply discount to the investment Value
+func investmentDiscount(value float64, discount float64) float64 {
+	return value - (value * (discount/100))
 }

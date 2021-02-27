@@ -39,6 +39,7 @@ func TestSuccessfulNewBid(t *testing.T) {
 	}
 
 	invoice := &Invoice{
+		Name: "invoice-1",
 		FaceValue:   1000,
 		NeededValue: 900,
 	}
@@ -55,6 +56,12 @@ func TestSuccessfulNewBid(t *testing.T) {
 	}
 
 	err = newInvestor(investor)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = newSellOrder(invoice)
 
 	if err != nil {
 		t.Error(err)
@@ -107,8 +114,8 @@ func TestSuccessfulNewBid(t *testing.T) {
 		t.Error(err)
 	}
 
-	if inv.Balance != 550 {
-		t.Errorf("expected balance %v, actual balance %v", 550, inv.Balance)
+	if inv.Balance != 1000 { // balance will only be modified after running the matching algorithm
+		t.Errorf("expected balance %v, actual balance %v", 1000, inv.Balance)
 	}
 }
 
@@ -124,6 +131,7 @@ func TestInsufficientBalance(t *testing.T) {
 	}
 
 	invoice := &Invoice{
+		Name: "invoice-1",
 		FaceValue:   1000,
 		NeededValue: 900,
 	}
@@ -175,6 +183,7 @@ func TestExcessProfit(t *testing.T) {
 	}
 
 	invoice := &Invoice{
+		Name: "invoice-1",
 		FaceValue:   1000,
 		NeededValue: 900,
 	}

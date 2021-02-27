@@ -27,10 +27,6 @@ func TestNewIssuer(t *testing.T) {
 
 func TestIssueInvoice(t *testing.T) {
 	cleanDB()
-	// An issuer party-A wants to finance an invoice with number invoice-1. The face value
-	//of the invoice is €1000.
-	//We need to record in the ledger that party-A has a €1000 invoice invoice-1 that
-	//should be financed;
 
 	issuer := &Issuer{
 		Name: "party-A",

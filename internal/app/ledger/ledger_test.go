@@ -2,18 +2,11 @@ package ledger
 
 import (
 	"fmt"
-	"github.com/google/logger"
 	"testing"
 )
 
 func TestGetLedger(t *testing.T) {
-	// for all sell orders, before running the matching algorithm for that sale order
-	// print something similar:
-
-	//party-A has a €1000 invoice invoice-1 that should be financed;
-	//● investor-1 has €450 reserved for the purchase of invoice-1;
-	//● investor-2 has €270 reserved for the purchase of invoice-1;
-	//● investor-4 has €285 reserved for the purchase of invoice-1;
+	cleanDB()
 	err := newSellOrderTestData()
 	if err != nil {
 		t.Error(err)
@@ -24,6 +17,7 @@ func TestGetLedger(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
 	ledger := getLedger()
 
 	// investor check
@@ -52,7 +46,7 @@ func TestGetLedger(t *testing.T) {
 		t.Errorf("expected invoice name %v, actual %v", "invoice-1", ledger.Entries[2].InvoiceName)
 	}
 
-	// reserved value
+	// invested value
 	if ledger.Entries[0].InvestedBalance != 500 {
 		t.Errorf("expected InvestedValue %v, actual %v", 500, ledger.Entries[0].InvestedBalance)
 	}
@@ -69,6 +63,7 @@ func TestGetLedger(t *testing.T) {
 		t.Errorf("expected InvestedValue %v, actual %v", 450, ledger.Entries[0].ReservedBalance)
 	}
 
+	// reserved value (invested value - discount)
 	if ledger.Entries[1].ReservedBalance != 270 {
 		t.Errorf("expected InvestedValue %v, actual %v", 270, ledger.Entries[1].ReservedBalance)
 	}
@@ -91,150 +86,6 @@ func TestGetLedger(t *testing.T) {
 	}
 }
 
-func getLedger() Ledger {
-	var (
-		sellOrders []*SellOrder
-		ledger Ledger
-	)
-
-	err := db.Model(&sellOrders).Relation("Invoice").Select()
-
-	if err != nil {
-		logger.Error(err)
-	}
-
-	for _, so := range sellOrders {
-		bids, err := getInvoiceBids(so.Invoice)
-
-		if err != nil {
-			logger.Error(err)
-			continue
-		}
-
-		for _, bid := range bids {
-			entry := LedgerEntry{
-				InvestedBalance:  bid.InvestmentValue,
-				ReservedBalance: bid.ReservedBalance,
-				ExpectedProfit: bid.InvestmentValue - bid.ReservedBalance,
-				InvestorName:   bid.Investor.Name,
-				InvoiceName:    bid.Invoice.Name,
-			}
-
-			ledger.Entries = append(ledger.Entries, entry)
-		}
-	}
-	return ledger
-}
-
-type Ledger struct {
-	Entries []LedgerEntry
-}
-
-type LedgerEntry struct {
-	InvestorName    string
-	InvoiceName     string
-	InvestedBalance float64
-	ReservedBalance float64
-	ExpectedProfit  float64
-}
-
-func matchingAlgorithm() error {
-	var (
-		sellOrders []*SellOrder
-	)
-
-	err := db.Model(&sellOrders).Relation("Invoice").Select()
-
-	if err != nil {
-		return err
-	}
-
-	tx, err := db.Begin()
-
-	if err != nil {
-		return err
-	}
-
-	defer txCloseLog(tx)
-
-soLoop:
-	for _, so := range sellOrders {
-		bids, err := getInvoiceBids(so.Invoice)
-
-		if err != nil {
-			return err
-		}
-
-		var total float64 = 0
-
-		for _, bid := range bids {
-			var surplus float64
-
-			if so.Financed {
-				break soLoop
-			}
-
-			total += bid.InvestmentValue
-
-			reservedBalance := investmentDiscount(bid.InvestmentValue, bid.Discount)
-
-			bid.Investor.Balance -= reservedBalance
-
-			// persist how much party-Y owes investor-X, which should be the real investment value (without the discount)
-			bid.ReservedBalance = reservedBalance
-
-			_, err := tx.Model(bid).Where("position = ?", bid.Position).Update()
-			if err != nil {
-				return err
-			}
-
-			_, err = tx.Model(bid.Investor).WherePK().Update()
-			if err != nil {
-				return err
-			}
-
-			if total >= so.Invoice.NeededValue {
-				if total == so.Invoice.NeededValue {
-
-				} else {
-
-					surplus =  total - so.Invoice.NeededValue
-
-					bid.InvestmentValue -= surplus
-
-					reservedBalance = investmentDiscount(bid.InvestmentValue, bid.Discount)
-					bid.ReservedBalance = reservedBalance
-
-					bid.Investor.Balance += investmentDiscount(surplus, bid.Discount)
-
-					_, err := tx.Model(bid).Where("position = ?", bid.Position).Update()
-					if err != nil {
-						return err
-					}
-
-					_, err = tx.Model(bid.Investor).WherePK().Update()
-					if err != nil {
-						return err
-					}
-				}
-
-				so.Financed = true
-				_, err = tx.Model(so).WherePK().Update()
-				if err != nil {
-					logger.Error(err)
-				}
-
-				break soLoop
- 			}
-		}
-	}
-	return tx.Commit()
-}
-
-// apply discount to the investment Value
-func investmentDiscount(value float64, discount float64) float64 {
-	return value - (value * (discount/100))
-}
 
 func newSellOrderTestData() error {
 	issuer := &Issuer{

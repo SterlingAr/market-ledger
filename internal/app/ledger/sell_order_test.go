@@ -3,6 +3,7 @@ package ledger
 import "testing"
 
 func TestNewSellOrder(t *testing.T) {
+	cleanDB()
 	// an existing invoice, make it available so that bids can be placed
 	issuer := &Issuer{
 		Name: "party-A",
@@ -14,9 +15,7 @@ func TestNewSellOrder(t *testing.T) {
 	}
 
 	invoice := &Invoice{
-		FaceValue:   0,
-		NeededValue: 0,
-		IssuerID:    0,
+		Name: "invoice-1",
 		Issuer:      nil,
 		Bids:        nil,
 	}
