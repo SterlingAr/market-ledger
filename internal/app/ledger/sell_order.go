@@ -1,9 +1,5 @@
 package ledger
 
-import (
-	"errors"
-)
-
 type SellOrder struct {
 	tableName struct{} `pg:"ledger.sell_orders"`
 	ID        uint64
@@ -55,20 +51,21 @@ func newSellOrder(invoice *Invoice) (*SellOrder, error) {
 	return sellOrder, tx.Commit()
 }
 
-func matchingAlgorithm(bid *Bid) error {
-
-	invoiceDiscount := calcDiscount(float64(bid.Invoice.FaceValue), float64(bid.Invoice.NeededValue))
-
-	if bid.ProfitPercentage > invoiceDiscount {
-		err := rejectBid(bid)
-		if err != nil {
-			return err
-		}
-		return errors.New("bid discount is bigger than invoice discount")
-	}
-
-	return nil
-}
+//
+//func matchingAlgorithm(bid *Bid) error {
+//
+//	invoiceDiscount := calcDiscount(float64(bid.Invoice.FaceValue), float64(bid.Invoice.NeededValue))
+//
+//	if bid.ProfitPercentage > invoiceDiscount {
+//		err := rejectBid(bid)
+//		if err != nil {
+//			return err
+//		}
+//		return errors.New("bid discount is bigger than invoice discount")
+//	}
+//
+//	return nil
+//}
 
 // change bid status, return money to investor
 func rejectBid(bid *Bid) error {
@@ -80,7 +77,7 @@ func rejectBid(bid *Bid) error {
 
 	defer txCloseLog(tx)
 
-	bid.Investor.Balance += bid.InvestmentValue
+	//bid.Investor.Balance += bid.InvestmentValue
 
 	bid.Status = "rejected"
 	

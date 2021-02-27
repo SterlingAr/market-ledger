@@ -5,7 +5,7 @@ import "errors"
 type Investor struct {
 	tableName struct{} `pg:"ledger.investor"`
 	ID        uint64
-	Balance   int
+	Balance   float64
 	Name      string
 	Bids      []*Bid `pg:"rel:has-many"`
 }
@@ -14,7 +14,7 @@ type Bid struct {
 	tableName struct{} `pg:"ledger.bids"`
 	//ID              uint64
 	Position         int `pg:",pk"`
-	InvestmentValue  int
+	InvestmentValue  float64
 	ProfitPercentage float64
 	InvestorID       uint64    `pg:",pk"`
 	Investor         *Investor `pg:"rel:has-one"`
@@ -26,6 +26,20 @@ type Bid struct {
 func (i *Investor) newBid(invoice *Invoice, bid *Bid) error {
 	if bid.InvestmentValue > i.Balance {
 		return errors.New("insufficient balance")
+	}
+
+	// I am not sure what bid discount is
+	// as a bidder I bid 500 euros
+	// I have a bid discount of 10%
+	// that means I won't be paying 500 euros? but only 450
+	// if the bid goes through, my balance is reduced by 450 euros
+	invoiceDiscount := calcDiscount(invoice.FaceValue, invoice.NeededValue)
+
+	if bid.ProfitPercentage > invoiceDiscount {
+		err := rejectBid(bid)
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err := getSellOrder(invoice.ID)

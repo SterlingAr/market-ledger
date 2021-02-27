@@ -42,6 +42,7 @@ func TestIssueInvoice(t *testing.T) {
 	}
 
 	invoice := &Invoice{
+		Name: "invoice-1",
 		FaceValue: 1000,
 	}
 
@@ -51,37 +52,35 @@ func TestIssueInvoice(t *testing.T) {
 		t.Errorf("expected to sell invoice, got error %v", err)
 	}
 
-	iss, err := getIssuer(issuer.Name)
-
-	if err != nil {
-		t.Errorf("expected to find issuer %v, got error %v", issuer.Name, err)
-	}
-
 	var (
-		invoices []*Invoice
-		minValue = 900
-		maxValue = 1000
+		minValue float64 = 900
+		maxValue float64 = 1000
 	)
 
-	invoices = getInvoices(iss, minValue, maxValue)
+	storedInvoice, err := getInvoice(invoice.Name)
 
-	if len(invoices) == 0 {
-		t.Errorf("expected invoices = %v, actual invoices =%v", 1, len(invoices))
+	if err != nil {
+		t.Errorf("expected to find invoice %v, got error %v", issuer.Name, err)
 	}
 
-	for _, invoice := range invoices {
-
-		if invoice.FaceValue < minValue || invoice.FaceValue > maxValue {
-			t.Errorf("unexpected FaceValue %v, minValue = %v, maxValue = %v", invoice.FaceValue, minValue, maxValue)
-		}
-
-		//if invoice.Financed {
-		//	t.Error("invoice should not be financed")
-		//}
-
-		if invoice.IssuerID != issuer.ID {
-			t.Errorf("mismatched issuer_id,  expected = %v  actual = %v", issuer.ID, invoice.IssuerID)
-		}
-
+	if storedInvoice.FaceValue < minValue || storedInvoice.FaceValue > maxValue {
+		t.Errorf("unexpected FaceValue %v, minValue = %v, maxValue = %v", storedInvoice.FaceValue, minValue, maxValue)
 	}
+
+	if storedInvoice.Name != invoice.Name {
+		t.Errorf("mismatched invoice name,  expected = %v  actual = %v", invoice.Name, storedInvoice.Name)
+	}
+
+	if storedInvoice.IssuerID != issuer.ID {
+		t.Errorf("mismatched issuer_id,  expected = %v  actual = %v", issuer.ID, storedInvoice.IssuerID)
+	}
+
+}
+
+func getInvoice(name string) (*Invoice, error) {
+	var invoice Invoice
+
+	err := db.Model(&invoice).Where("name = ?", name).Select()
+
+	return &invoice, err
 }

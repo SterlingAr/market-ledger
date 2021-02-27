@@ -60,15 +60,3 @@ func sellInvoice(issuer *Issuer, invoice *Invoice) error {
 
 	return tx.Commit()
 }
-
-func getInvoices(iss *Issuer, min int, max int) []*Invoice {
-	var invoices []*Invoice
-
-	for _, invoice := range iss.Invoices {
-		if invoice.FaceValue >= min && invoice.FaceValue <= max {
-			invoices = append(invoices, invoice)
-		}
-	}
-
-	return invoices
-}
