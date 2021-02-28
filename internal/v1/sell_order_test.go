@@ -15,9 +15,9 @@ func TestNewSellOrder(t *testing.T) {
 	}
 
 	invoice := &Invoice{
-		Name: "invoice-1",
-		Issuer:      nil,
-		Bids:        nil,
+		Name:   "invoice-1",
+		Issuer: nil,
+		Bids:   nil,
 	}
 
 	err = sellInvoice(issuer, invoice)

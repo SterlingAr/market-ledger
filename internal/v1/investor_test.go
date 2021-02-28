@@ -39,7 +39,7 @@ func TestSuccessfulNewBid(t *testing.T) {
 	}
 
 	invoice := &Invoice{
-		Name: "invoice-1",
+		Name:        "invoice-1",
 		FaceValue:   1000,
 		NeededValue: 900,
 	}
@@ -68,8 +68,8 @@ func TestSuccessfulNewBid(t *testing.T) {
 	}
 
 	bid := &Bid{
-		InvestmentValue:  450,
-		Discount: 10,
+		InvestmentValue: 450,
+		Discount:        10,
 	}
 
 	err = investor.newBid(invoice, bid)
@@ -131,7 +131,7 @@ func TestInsufficientBalance(t *testing.T) {
 	}
 
 	invoice := &Invoice{
-		Name: "invoice-1",
+		Name:        "invoice-1",
 		FaceValue:   1000,
 		NeededValue: 900,
 	}
@@ -154,8 +154,8 @@ func TestInsufficientBalance(t *testing.T) {
 	}
 
 	bid := &Bid{
-		InvestmentValue:  5450,
-		Discount: 5,
+		InvestmentValue: 5450,
+		Discount:        5,
 	}
 
 	err = investor.newBid(invoice, bid)
@@ -183,7 +183,7 @@ func TestExcessProfit(t *testing.T) {
 	}
 
 	invoice := &Invoice{
-		Name: "invoice-1",
+		Name:        "invoice-1",
 		FaceValue:   1000,
 		NeededValue: 900,
 	}
@@ -206,8 +206,8 @@ func TestExcessProfit(t *testing.T) {
 	}
 
 	bid := &Bid{
-		InvestmentValue:  450,
-		Discount: 15,
+		InvestmentValue: 450,
+		Discount:        15,
 	}
 
 	err = investor.newBid(invoice, bid)

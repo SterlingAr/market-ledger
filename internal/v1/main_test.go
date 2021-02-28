@@ -16,6 +16,7 @@ func TestMain(m *testing.M) {
 		User:     "user",
 		Password: "password",
 		Host:     "127.0.0.1",
+		//Host:     "postgres",
 		Port:     "5432",
 		Database: "market",
 		Schema:   "ledger",

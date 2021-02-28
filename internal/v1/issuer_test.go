@@ -38,7 +38,7 @@ func TestIssueInvoice(t *testing.T) {
 	}
 
 	invoice := &Invoice{
-		Name: "invoice-1",
+		Name:      "invoice-1",
 		FaceValue: 1000,
 	}
 

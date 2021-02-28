@@ -113,7 +113,7 @@ soLoop:
 
 				} else {
 
-					surplus =  total - so.Invoice.NeededValue
+					surplus = total - so.Invoice.NeededValue
 
 					bid.InvestmentValue -= surplus
 
@@ -148,5 +148,5 @@ soLoop:
 
 // apply discount to the investment Value
 func investmentDiscount(value float64, discount float64) float64 {
-	return value - (value * (discount/100))
+	return value - (value * (discount / 100))
 }

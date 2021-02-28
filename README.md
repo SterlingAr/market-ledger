@@ -1,14 +1,35 @@
+### Showcase setup 
     
-    docker-compose up -d
+    cp .env.dist .env
+    docker-compose up
+    
+    
+API is exposed on **127.0.0.1:50000**, use the postman collection at api/postman/market-ledger.json to navigate endpoints
+
+
+### Development
+
+    cp .env.dist .env
+    
+    docker-compose -f docker-compose.dev.yml up -d
     
     go get -u -d ./...
     
+    go mod vendor
+    
     go test -json ./...
     
+    # expose api
+    go run -mod=vendor cmd/ledger/ledger.go serve --config "configs/ledger.dev.yml" --purge-db
     
-    # api/proto/v1
-    protoc -I ./ market-ledger-service.proto --go_out=plugins=grpc:./
+    # If changes are made to the services
     
-    protoc --proto_path=api/proto/v1 --proto_path=third_party --go_out=plugins=grpc:pkg/api/v1 todo-service.proto
-    protoc --proto_path=api/proto/v1 --proto_path=third_party --grpc-gateway_out=logtostderr=true:pkg/api/v1 todo-service.proto
-    protoc --proto_path=api/proto/v1 --proto_path=third_party --swagger_out=logtostderr=true:api/swagger/v1 todo-service.proto
+    # *nix
+    protoc -I . -I third_party api\proto\v1\market-ledger-service.proto --go-grpc_out=. --grpc-gateway_out=logtostderr=true:. --go_out=./
+    
+    # Windows
+    protoc -I . -I third_party api/proto/v1/market-ledger-service.proto --go-grpc_out=. --grpc-gateway_out=logtostderr=true:. --go_out=./
+    
+    
+    
+    

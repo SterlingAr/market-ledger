@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"fmt"
+	v1 "github.com/SterlingAr/market-ledger/internal/v1"
 	"github.com/google/logger"
 	"github.com/spf13/cobra"
 	"io/ioutil"
@@ -20,6 +21,7 @@ var rootCmd = &cobra.Command{
 	Use:   "ledger",
 	Short: "Serve the login services needed and offer CLI support for account operations",
 	Long:  `The purpose of the login service is to handle packets related to user account login and server selection.`,
+	Run:   v1.Serve,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -36,9 +38,12 @@ func init() {
 	log.Info("root init()")
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/ledger.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/ledger.yml)")
 
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	rootCmd.PersistentFlags().Bool("purge-db", false, "WARNING: this will recreate all tables and seed the database")
+
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -55,7 +60,7 @@ func initConfig() {
 		}
 
 		viper.AddConfigPath(home)
-		viper.SetConfigType("yaml")
+		viper.SetConfigType("yml")
 		viper.SetConfigName("ledger")
 	}
 

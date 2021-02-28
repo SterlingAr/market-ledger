@@ -86,7 +86,6 @@ func TestGetLedger(t *testing.T) {
 	}
 }
 
-
 func newSellOrderTestData() error {
 	issuer := &Issuer{
 		Name: "party-A",
@@ -114,7 +113,7 @@ func newSellOrderTestData() error {
 	}
 
 	invoice := &Invoice{
-		Name: "invoice-1",
+		Name:        "invoice-1",
 		FaceValue:   1000,
 		NeededValue: 900,
 	}
@@ -132,8 +131,8 @@ func newSellOrderTestData() error {
 	}
 
 	err = investors["investor-1"].newBid(invoice, &Bid{
-		InvestmentValue:  500,
-		Discount: 10,
+		InvestmentValue: 500,
+		Discount:        10,
 	})
 
 	if err != nil {
@@ -141,8 +140,8 @@ func newSellOrderTestData() error {
 	}
 
 	err = investors["investor-2"].newBid(invoice, &Bid{
-		InvestmentValue:  300,
-		Discount: 10,
+		InvestmentValue: 300,
+		Discount:        10,
 	})
 
 	if err != nil {
@@ -150,8 +149,8 @@ func newSellOrderTestData() error {
 	}
 
 	err = investors["investor-3"].newBid(invoice, &Bid{
-		InvestmentValue:  200,
-		Discount: 14.29,
+		InvestmentValue: 200,
+		Discount:        14.29,
 	}) // for this instance, its expected for the bid to be rejected
 
 	if err == nil {
@@ -159,8 +158,8 @@ func newSellOrderTestData() error {
 	}
 
 	err = investors["investor-4"].newBid(invoice, &Bid{
-		InvestmentValue:  300,
-		Discount: 5,
+		InvestmentValue: 300,
+		Discount:        5,
 	})
 
 	if err != nil {

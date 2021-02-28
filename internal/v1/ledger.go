@@ -36,11 +36,11 @@ func getLedger() Ledger {
 
 		for _, bid := range bids {
 			entry := Entry{
-				InvestedBalance:  bid.InvestmentValue,
+				InvestedBalance: bid.InvestmentValue,
 				ReservedBalance: bid.ReservedBalance,
-				ExpectedProfit: bid.InvestmentValue - bid.ReservedBalance,
-				InvestorName:   bid.Investor.Name,
-				InvoiceName:    bid.Invoice.Name,
+				ExpectedProfit:  bid.InvestmentValue - bid.ReservedBalance,
+				InvestorName:    bid.Investor.Name,
+				InvoiceName:     bid.Invoice.Name,
 			}
 
 			ledger.Entries = append(ledger.Entries, entry)

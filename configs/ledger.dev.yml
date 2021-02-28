@@ -6,8 +6,7 @@ http:
 
 database:
   postgres:
-#    host: 127.0.0.1
-    host: market_postgres
+    host: 127.0.0.1
     port: 5432
     db_name: market
     db_user: user
