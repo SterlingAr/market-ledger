@@ -1,4 +1,4 @@
-package ledger
+package v1
 
 import (
 	"github.com/go-pg/pg/v10"

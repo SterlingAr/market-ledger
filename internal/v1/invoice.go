@@ -1,4 +1,4 @@
-package ledger
+package v1
 
 type Invoice struct {
 	tableName   struct{} `pg:"ledger.invoices"`

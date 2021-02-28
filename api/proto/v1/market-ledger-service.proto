@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package v1;
+
+service MarketLedger {
+    rpc Sell(Invoice) returns (SellResponse) {
+
+    };
+}
+
+message Invoice {
+    // Unique ID of the Issuer
+    uint64  issuerId = 1;
+    // Unique invoice name
+    string name = 2;
+    // Full price of the Invoice
+    double  faceValue = 3;
+    // Price that needs to be covered, usually smaller but not greater than the rawValue
+    double  neededValue = 4;
+}
+
+message SellResponse {
+    // ID of the created Invoice
+    uint64 id = 1;
+}

@@ -1,4 +1,4 @@
-package ledger
+package v1
 
 import "github.com/google/logger"
 
@@ -17,7 +17,7 @@ type Entry struct {
 func getLedger() Ledger {
 	var (
 		sellOrders []*SellOrder
-		ledger Ledger
+		ledger     Ledger
 	)
 
 	err := db.Model(&sellOrders).Relation("Invoice").Select()

@@ -1,4 +1,4 @@
-package ledger
+package v1
 
 import "github.com/google/logger"
 

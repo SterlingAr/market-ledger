@@ -1,4 +1,4 @@
-package ledger
+package v1
 
 type Issuer struct {
 	tableName struct{} `pg:"ledger.issuers"`
