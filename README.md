@@ -4,7 +4,7 @@
     docker-compose up
     
     
-API is exposed on **127.0.0.1:50000**, use the postman collection at api/postman/market-ledger.json to navigate endpoints
+API is exposed on **127.0.0.1:50000**, use the postman collection at api/postman/market ledger.postman_collection.json to navigate endpoints
 
 
 ### Development

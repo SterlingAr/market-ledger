@@ -1,0 +1,145 @@
+{
+	"info": {
+		"_postman_id": "e76d5c18-c625-405d-bf4f-e348d9ed1fee",
+		"name": "market ledger",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Sell Invoice",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"invoice-1\",\r\n    \"issuerId\": 1,\r\n    \"faceValue\": 1000,\r\n    \"neededValue\": 900\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "127.0.0.1:{{port}}/v1/sell",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"sell"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place Sell Order",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"invoiceId\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:{{port}}/v1/sell-order/new",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"sell-order",
+						"new"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place New Bid",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"investorId\": 2,\r\n    \"sellOrderId\": 1,\r\n    \"investedValue\": 300,\r\n    \"discount\": 5\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:{{port}}/v1/bids/new",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"bids",
+						"new"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Matching Algorithm",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:{{port}}/v1/matching-algorithm",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"matching-algorithm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Ledger",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:{{port}}/v1/ledger",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"v1",
+						"ledger"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
