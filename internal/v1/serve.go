@@ -27,8 +27,12 @@ func Serve(cmd *cobra.Command, args []string) {
 	purgeDb, _ := cmd.Flags().GetBool("purge-db")
 
 	if purgeDb {
+		err := database.CreateSchema(db, "ledger")
+		if err != nil {
+			logger.Fatal(err)
+		}
 		cleanDB()
-		err := seedDB()
+		err = seedDB()
 		if err != nil {
 			logger.Fatal(err)
 		}
